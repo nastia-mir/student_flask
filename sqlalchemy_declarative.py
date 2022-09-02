@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 
+
 Base = declarative_base()
 
 
@@ -28,5 +29,5 @@ class CourseModel(Base):
     description = Column(String(500))
 
 
-engine = create_engine('sqlite:///students.db')
+engine = create_engine('postgresql:///postgres:1111@localhost:5432/students')
 Base.metadata.create_all(engine)
