@@ -1,28 +1,30 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, create_engine
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy_utils import database_exists, create_database
 from app import db
 
 
-class GroupModel(db.Model):
+class Group(db.Model):
     __tablename__ = 'group'
     id = Column(Integer, primary_key=True)
     name = Column(String(10))
+    student = relationship("Student", back_populates="group")
 
-    def __repr__(self):
-        return "<GroupModel(name='{}'".format(self.name)
+    #def __repr__(self):
+    #    return "<GroupModel(name='{}'".format(self.name)
 
 
-class StudentModel(db.Model):
+class Student(db.Model):
     __tablename__ = 'student'
     id = Column(Integer, primary_key=True)
     first_name = Column(String(100))
     last_name = Column(String(100))
     group_id = Column(Integer, ForeignKey('group.id'))
-    group = relationship(GroupModel)
+    group = relationship("Group", back_populates="student")
 
 
-class CourseModel(db.Model):
+
+class Course(db.Model):
     __tablename__ = 'course'
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
@@ -41,3 +43,4 @@ def recreate_database():
 
 
 recreate_database()
+Session = sessionmaker(bind=engine)
