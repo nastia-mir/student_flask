@@ -1,8 +1,10 @@
 import string
 import random
 import itertools
-from Model import Group, Student, Course, Session
+from Model import Group, Student, Course, Session, recreate_database
 
+
+recreate_database()
 
 s = Session()
 
@@ -71,16 +73,9 @@ def generate_students():
              'Anissa', 'Rafael', 'Alex', 'Patrick', 'Victor', 'Sean', 'Nelie', 'Kaycee', 'Justin', 'Daniel']
     surnames = ['Amos', 'Nelson', 'Spring', 'Alias', 'Potter', 'Lew', 'Dun', 'Beauchamp', 'Lonis', 'Kodish',
                 'Polo', 'Heaton', 'Nedelec', 'Rice', 'Bloom', 'Clark', 'Byrne', 'Rien', 'Alien', 'Joseph']
-
     students = random.sample(set(itertools.product(names, surnames)), 200)
-    for student in students:
-        stud = Student(first_name=student[0], last_name=student[1])
-        s.add(stud)
-        s.commit()
 
-
-    '''groups = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: []}
-
+    groups = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: []}
     for student in students:
         r = random.randint(1, 10)
         groups[r].append(student)
@@ -88,25 +83,38 @@ def generate_students():
     groups_without_students = []
     for i in range(1, 10):
         if len(groups[i]) < 10 or len(groups[i]) > 30:
-            groups['_'] = groups[i]
             groups_without_students.append(i)
-            del groups[i]
 
-    for i in range(1, 10):
+    for i in range(1, 11):
         if i not in groups_without_students:
+            idd = str(i)
+            for group in s.query(Group).filter_by(id=idd):
+                for student in groups[i]:
+                    stud = Student(first_name=student[0], last_name=student[1], group_id=group.id)
+                    s.add(stud)
+                    s.commit()
+        else:
             for student in groups[i]:
                 stud = Student(first_name=student[0], last_name=student[1])
                 s.add(stud)
                 s.commit()
-    for student in groups['_']:
-        stud = Student(first_name=student[0], last_name=student[1])
-        s.add(stud)
-        s.commit()'''
+
+
+def generate_student_course():
+    for i in range(1, 201):
+        for student in s.query(Student).filter_by(id=i):
+            course_num = random.randint(1, 4)
+            for j in range(0, course_num):
+                r = random.randint(1, 10)
+                for course in s.query(Course).filter_by(id=r):
+                    student.courses.append(course)
+                    s.commit()
 
 
 generate_groups()
 generate_courses()
 generate_students()
+generate_student_course()
 
 
 s.close()
