@@ -2,12 +2,9 @@ import string
 import random
 import itertools
 from Model import Group, Student, Course, Session, recreate_database
-
-
 recreate_database()
 
 s = Session()
-
 
 def generate_groups():
     for i in range(10):
@@ -87,8 +84,7 @@ def generate_students():
 
     for i in range(1, 11):
         if i not in groups_without_students:
-            idd = str(i)
-            for group in s.query(Group).filter_by(id=idd):
+            for group in s.query(Group).filter_by(id=i):
                 for student in groups[i]:
                     stud = Student(first_name=student[0], last_name=student[1], group_id=group.id)
                     s.add(stud)
@@ -107,7 +103,7 @@ def generate_student_course():
             for j in range(0, course_num):
                 r = random.randint(1, 10)
                 for course in s.query(Course).filter_by(id=r):
-                    student.courses.append(course)
+                    student.course.append(course)
                     s.commit()
 
 

@@ -5,8 +5,8 @@ from app import db
 
 
 student_course = db.Table('student_course',
-                          db.Column('student_id', db.Integer, db.ForeignKey('student.id')),
-                          db.Column('course_id', db.Integer, db.ForeignKey('course.id'))
+                          db.Column('student_id', db.Integer, db.ForeignKey('student.id', ondelete="CASCADE")),
+                          db.Column('course_id', db.Integer, db.ForeignKey('course.id',  ondelete="CASCADE"))
                           )
 
 
@@ -28,7 +28,10 @@ class Student(db.Model):
     group_id = Column(Integer, ForeignKey('group.id'))
 
     group = relationship("Group", back_populates="student")
-    courses = relationship('Course', secondary=student_course, backref='student')
+    course = relationship('Course',
+                          secondary=student_course,
+                          back_populates='student',
+                          cascade="all, delete")
 
     def __repr__(self):
         return "<Student(first_name='{}', last_name='{}')>".format(self.first_name, self.last_name)
@@ -39,6 +42,11 @@ class Course(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
     description = Column(String(500))
+    student = relationship("Student",
+                           secondary=student_course,
+                           back_populates="course",
+                           passive_deletes=True,
+                           )
 
     def __repr__(self):
         return "<Course(name='{})'>".format(self.name)
@@ -55,5 +63,4 @@ def recreate_database():
     db.Model.metadata.create_all(engine)
 
 
-recreate_database()
 Session = sessionmaker(bind=engine)
