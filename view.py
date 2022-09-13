@@ -1,27 +1,27 @@
-from Model import Group, Student, Course, student_course, Session
+from Model import Group, Student, Course, Session
 
 s = Session()
 
 
 def groups_leq_students(num):
-    correct_groups_ids = []
-    for i in range(1, 11):
-        if s.query(Student).filter_by(group_id=i).count() <= num:
-            correct_groups_ids.append(i)
     correct_group_names = []
-    for id in correct_groups_ids:
-        for group in s.query(Group).filter_by(id=id):
-            correct_group_names.append(group.name)
+    for i in range(1, 11):
+        students_in_group = s.query(Student).join(Group).filter(Group.id == i)
+        if students_in_group.count() <= num:
+            for stud in students_in_group:
+                if stud.group.name not in correct_group_names:
+                    correct_group_names.append(stud.group.name)
     return correct_group_names
 
 
 def students_related_to_course(course_name):
-    for course in s.query(Course).filtered_dy(name=course_name):
-        course_id = course
-
-
-
-
+    query = s.query(Student).join(Course.student)
+    students_on_course = []
+    for row in query:
+        for course in row.course:
+            if course.name == course_name:
+                students_on_course.append(' '.join([row.first_name, row.last_name]))
+    return students_on_course
 
 
 def student_add(stud_first_name, stud_last_name):
@@ -45,14 +45,11 @@ def add_student_to_course(stud_id, course_id):
 
 def remove_student_from_course(stud_id, course_id):
     for student in s.query(Student).filter_by(id=stud_id):
-        for course in s.query(Course).filter_by(id=course_id):
-            student.course.pop()
+        for course in student.course:
+            if course.id == course_id:
+                student.course.pop()
+                print(student.course)
+                s.commit()
 
-            #not working
-
-
-
-
-remove_student_from_course(200,5)
 
 s.close()
