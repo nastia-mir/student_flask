@@ -1,10 +1,12 @@
 import string
 import random
 import itertools
-from Model import Group, Student, Course, Session, recreate_database
-recreate_database()
+from app import Group, Student, Course, Session, db
+from models.Model import recreate_database
+recreate_database(db)
 
 s = Session()
+
 
 def generate_groups():
     for i in range(10):
@@ -23,32 +25,32 @@ def generate_courses():
     s.commit()
 
     course = Course(name='Biology', description='The science that deals with living organisms and their vital '
-                                                     'processes.')
+                                                'processes.')
     s.add(course)
     s.commit()
 
     course = Course(name='Chemistry', description='The science that deals with the properties, composition, '
-                                                       'and structure of elements and compounds.')
+                                                  'and structure of elements and compounds.')
     s.add(course)
     s.commit()
 
     course = Course(name='Geography', description='The study of places and the relationships between people and '
-                                                       'their environments.')
+                                                   'their environments.')
     s.add(course)
     s.commit()
 
     course = Course(name='Physics', description='The science that deals with the structure of matter and how the '
-                                                     'fundamental constituents of the universe interact.')
+                                                'fundamental constituents of the universe interact.')
     s.add(course)
     s.commit()
 
     course = Course(name='Literature', description='Students read and respond to a variety of literary texts '
-                                                        'from the genres of prose, poetry and drama.')
+                                                   'from the genres of prose, poetry and drama.')
     s.add(course)
     s.commit()
 
     course = Course(name='Programming', description='Course include basic concepts in abstraction, algorithms, '
-                                                         'operating systems and data structures.')
+                                                    'operating systems and data structures.')
     s.add(course)
     s.commit()
 

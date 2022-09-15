@@ -59,7 +59,7 @@ if not database_exists(engine.url):
 db.Model.metadata.create_all(engine)
 
 
-def recreate_database():
+def recreate_database(db):
     db.Model.metadata.drop_all(engine)
     db.Model.metadata.create_all(engine)
 
