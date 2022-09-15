@@ -31,6 +31,22 @@ class StudentsAPI(Resource):
         result['first_name'] = stud_name
         result['last_name'] = stud_surname
         result['action'] = 'added'
-        return result
+        api_data = controller.get_data(result)
+        return jsonify(api_data)
+
+    def delete(self):
+        if not request.args or not 'id' in request.args:
+            return 404
+        stud_id = request.args.get('id')
+        controller = Controller()
+        controller.student_delete(stud_id)
+        result = dict()
+        result['id'] = stud_id
+        result['action'] = 'deleted'
+        api_data = controller.get_data(result)
+        return jsonify(api_data)
+
+
+
 
 
