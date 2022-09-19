@@ -6,16 +6,22 @@ from routes.routes import data_bp, api
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:1111@localhost:5432/students'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-from views.view import GroupsLeqStudentsAPI, StudentsCourseAPI, StudentsAPI
+
+from views.view import GroupsLeqStudentsAPI, StudentsCourseAPI, StudentsAPI, CoursesAPI, GroupAPI
 from models.Model import Session
 
 api.add_resource(GroupsLeqStudentsAPI, "/groups_leq_studs/", endpoint="/groups_leq_studs/")
 api.add_resource(StudentsCourseAPI, "/studs_course/", endpoint="/studs_course/")
 api.add_resource(StudentsAPI, "/students/", endpoint="/students/")
+
+
+api.add_resource(CoursesAPI, "/courses/", endpoint="/courses/")
+api.add_resource(GroupAPI, "/groups/", endpoint="/groups/")
 app.register_blueprint(data_bp, url_prefix="/api/v1")
 
 
@@ -29,7 +35,7 @@ def handle_500(e):
     return {"status": "500", "message": "Something went wrong"}
 
 
-@app.before_request
+'''@app.before_request
 def before_request():
     s = Session()
 
@@ -37,7 +43,7 @@ def before_request():
 @app.after_request
 def after_request(response):
     #s.close()
-    return response
+    return response'''
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 import string
 import random
 import itertools
-from app import Group, Student, Course, Session, db
+from Model import Group, Student, Course
+from app import Session, db
 from models.Model import recreate_database
 recreate_database(db)
 

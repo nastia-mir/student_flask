@@ -1,4 +1,5 @@
 from models.Model import Group, Student, Course, Session
+from flask_restful import reqparse
 
 s = Session()
 
@@ -28,12 +29,26 @@ class Controller():
         return result
 
     def student_add(self, stud_first_name, stud_last_name):
+        student = s.query(Student).filter_by(first_name=stud_first_name, last_name=stud_last_name).first()
+
+        if student:
+            return {'error': 'student already exists.'}
+        elif not stud_first_name or not stud_last_name:
+            return {'error': 'wrong request'}
+
         stud = Student(first_name=stud_first_name, last_name=stud_last_name)
         s.add(stud)
         s.commit()
 
     def student_delete(self, stud_id):
+        if not stud_id:
+            return {'error': 'wrong request'}
+
         student = s.query(Student).filter_by(id=stud_id).first()
+
+        if not student:
+            return {'error': 'no student with given id.'}
+
         s.delete(student)
         s.commit()
 
@@ -51,7 +66,85 @@ class Controller():
                     print(student.course)
                     s.commit()
 
-    def get_data(self, list):
-        return {'data': list}
+    def get_data(self, lst):
+        return {'data': lst}
+
+
+
+
+
+
+
+
+
+
+    def show_students(self):
+        result = dict()
+        for student in s.query(Student):
+            student_info = dict()
+            stud_name = dict()
+            stud_name['first name'] = student.first_name
+            stud_name['last name'] = student.last_name
+            student_info['name'] = stud_name
+            if not student.group:
+                student_info['group name'] = 'None'
+            else:
+                student_info['group name'] = student.group.name
+            student_courses = []
+            query = s.query(Student).join(Course.student)
+            for row in query:
+                for course in row.course:
+                    if row.id == student.id:
+                        student_courses.append(course.name)
+            student_info['courses'] = student_courses
+            result[student.id] = student_info
+        return result
+
+    def show_one_student(self, first_name, last_name):
+        student = s.query(Student).filter_by(first_name=first_name, last_name=last_name).first()
+        if not student:
+            return {'error': 'wrong student name'}
+        else:
+            result = dict()
+            student_info = dict()
+            stud_name = dict()
+            stud_name['first name'] = first_name
+            stud_name['last name'] = last_name
+            student_info['name'] = stud_name
+            if not student.group:
+                student_info['group name'] = 'None'
+            else:
+                student_info['group name'] = student.group.name
+            student_courses = []
+            query = s.query(Student).join(Course.student)
+            for row in query:
+                for course in row.course:
+                    if row.id == student.id:
+                        student_courses.append(course.name)
+            student_info['courses'] = student_courses
+            result[student.id] = student_info
+        return result
+
+    def show_courses(self):
+        result = dict()
+        for course in s.query(Course):
+            course_info = dict()
+            course_info['course name'] = course.name
+            course_info['description'] = course.description
+            result[course.id] = course_info
+        return result
+
+    def show_groups(self):
+        result = dict()
+        for group in s.query(Group):
+            group_info = dict()
+            group_info['group name'] = group.name
+            studs = []
+            for stud in group.student:
+                studs.append(' '.join([stud.first_name, stud.last_name]))
+            group_info['students'] = studs
+            result[group.id] = group_info
+        return result
+
 
 s.close()
