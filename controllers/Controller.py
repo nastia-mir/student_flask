@@ -1,5 +1,4 @@
 from models.Model import Group, Student, Course, Session
-from flask_restful import reqparse
 
 s = Session()
 
@@ -43,28 +42,33 @@ class Controller():
     def student_delete(self, stud_id):
         if not stud_id:
             return {'error': 'wrong request'}
-
         student = s.query(Student).filter_by(id=stud_id).first()
-
         if not student:
             return {'error': 'no student with given id.'}
-
         s.delete(student)
         s.commit()
 
     def add_student_to_course(self, stud_id, course_id):
         for student in s.query(Student).filter_by(id=stud_id):
+            if not student:
+                return {"error": "wrong student id."}
             for course in s.query(Course).filter_by(id=course_id):
+                if not course:
+                    return {"error": "wrong course id."}
                 student.course.append(course)
                 s.commit()
 
     def remove_student_from_course(self, stud_id, course_id):
         for student in s.query(Student).filter_by(id=stud_id):
+            deleted = False
+            if not student:
+                return {"error": "wrong student id."}
             for course in student.course:
                 if course.id == course_id:
+                    deleted = True
                     student.course.pop()
-                    print(student.course)
                     s.commit()
+        return {"deleted": deleted}
 
     def get_data(self, lst):
         return {'data': lst}
@@ -133,6 +137,29 @@ class Controller():
             course_info['description'] = course.description
             result[course.id] = course_info
         return result
+
+    def show_courses_of_one_student(self, stud_id):
+        student = s.query(Student).filter_by(id=stud_id).first()
+        if not student:
+            return {'error': 'wrong student name'}
+        else:
+            result = dict()
+            stud_name = dict()
+            stud_name['first name'] = student.first_name
+            stud_name['last name'] = student.last_name
+            result['name'] = stud_name
+            student_courses = []
+            query = s.query(Student).join(Course.student)
+            if query:
+                for row in query:
+                    for course in row.course:
+                        if row.id == stud_id:
+                            student_courses.append(course.name)
+                result['courses'] = student_courses
+            else:
+                result['courses'] = 'None'
+        return result
+
 
     def show_groups(self):
         result = dict()
