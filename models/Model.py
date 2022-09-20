@@ -7,7 +7,6 @@ from app import db
 student_course = db.Table('student_course',
                           db.Column('student_id', db.Integer, db.ForeignKey('student.id', ondelete="CASCADE")),
                           db.Column('course_id', db.Integer, db.ForeignKey('course.id',  ondelete="CASCADE")),
-                          #db.PrimaryKeyConstraint('student_id', 'course_id'),
                           extend_existing=True
                           )
 
@@ -32,7 +31,6 @@ class Student(db.Model):
     group_id = Column(Integer, ForeignKey('group.id'))
 
     group = relationship("Group", back_populates="student")
-    #courses = relationship('Course', secondary=student_course, backref='student')
     course = relationship('Course',
                           secondary=student_course,
                           back_populates='student',
@@ -51,7 +49,6 @@ class Course(db.Model):
     student = relationship("Student",
                            secondary=student_course,
                            back_populates="course",
-                           #passive_deletes=True,
                            )
 
     def __repr__(self):
