@@ -8,7 +8,7 @@ class GroupsLeqStudentsAPI(Resource):
     def get(self):
         students_num = request.args.get('students')
         controller = Controller()
-        api_data = controller.get_data(controller.groups_leq_students(students_num))
+        api_data = controller.get_data(controller.groups_leq_students(int(students_num)))
         return jsonify(api_data)
 
 

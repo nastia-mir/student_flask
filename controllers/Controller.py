@@ -9,7 +9,7 @@ class Controller():
         result = dict()
         for i in range(1, 11):
             students_in_group = s.query(Student).join(Group).filter(Group.id == i)
-            if students_in_group.count() <= int(num):
+            if students_in_group.count() <= num:
                 for stud in students_in_group:
                     if stud.group.name not in correct_group_names:
                         correct_group_names.append(stud.group.name)
@@ -23,7 +23,7 @@ class Controller():
         for row in query:
             for course in row.course:
                 if course.name == course_name:
-                    students_on_course.append([row.first_name, row.last_name])
+                    students_on_course.append(' '.join([row.first_name, row.last_name]))
         result[course_name] = students_on_course
         return result
 
