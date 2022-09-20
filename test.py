@@ -24,7 +24,8 @@ def find_str(text, word):
 
 def test_students(client):
     response = client.get('/api/v1/students/?first_name=Jonathan&last_name=Sims')  # correct name
-    assert find_str(str(response.data), '"first name": "Jonathan", "last name": "Sims"')
+    assert find_str(str(response.data), '"first name": "Jonathan"')
+    assert find_str(str(response.data), '"last name": "Sims"')
     assert not find_str(str(response.data), '"first name": "Melanie"')
     response = client.get('/api/v1/students/?first_name=somename&last_name=somename')  # incorrect name
     assert find_str(str(response.data), 'wrong student')
@@ -45,6 +46,17 @@ def test_groups(client):
     response = client.get('/api/v1/groups/')
     assert find_str(str(response.data), '"group name": "HP-20", "students": ["Jane Blackwood","Michael Tonner",')
     assert find_str(str(response.data), '"group name": "HJ-63", "students": ["Georgie Barker"')
+
+
+def test_groups_leq_studs(client):
+    response = client.get('/api/v1/groups_leq_studs/?students=16')
+    assert find_str(str(response.data), '"groups": ["VI-75", "SH-31", "ZO-81", "UY-21"]')
+
+
+def test_studs_course(client):
+    response = client.get('/api/v1/studs_course/?course=History')
+    assert find_str(str(response.data), ' "History": ["Michael Tonner", "Jonah Leitner", "Timothy Magnus"')
+
 
 
 
