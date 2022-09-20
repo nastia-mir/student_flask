@@ -33,7 +33,7 @@ class Student(db.Model):
 
     group = relationship("Group", back_populates="student")
     #courses = relationship('Course', secondary=student_course, backref='student')
-    courses = relationship('Course',
+    course = relationship('Course',
                           secondary=student_course,
                           back_populates='student',
                           cascade="all, delete")
@@ -50,7 +50,7 @@ class Course(db.Model):
     description = Column(String(500))
     student = relationship("Student",
                            secondary=student_course,
-                           back_populates="courses",
+                           back_populates="course",
                            #passive_deletes=True,
                            )
 
