@@ -73,15 +73,6 @@ class Controller():
     def get_data(self, lst):
         return {'data': lst}
 
-
-
-
-
-
-
-
-
-
     def show_students(self):
         result = dict()
         for student in s.query(Student):
@@ -141,7 +132,7 @@ class Controller():
     def show_courses_of_one_student(self, stud_id):
         student = s.query(Student).filter_by(id=stud_id).first()
         if not student:
-            return {'error': 'wrong student name'}
+            return {'error': 'wrong student id'}
         else:
             result = dict()
             stud_name = dict()
@@ -159,7 +150,6 @@ class Controller():
             else:
                 result['courses'] = 'None'
         return result
-
 
     def show_groups(self):
         result = dict()

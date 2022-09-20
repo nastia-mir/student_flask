@@ -23,8 +23,10 @@ class StudentsCourseAPI(Resource):
 class StudentsAPI(Resource):
     def get(self):
         controller = Controller()
-        if not request.args or not 'first_name' in request.args or not 'last_name' in request.args:
-            api_data = controller.get_data(controller.show_students)
+        if not request.args:
+            api_data = controller.get_data(controller.show_students())
+        elif not 'first_name' in request.args or not 'last_name' in request.args:
+            api_data = {"error": "wrong request"}
         else:
             stud_first_name = request.args.get('first_name')
             stud_last_name = request.args.get('last_name')
