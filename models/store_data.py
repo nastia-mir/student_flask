@@ -1,10 +1,8 @@
 import string
 import random
 import itertools
-from Model import Group, Student, Course, Session
-from app import db
-from models.Model import recreate_database
-recreate_database(db)
+from Model import Group, Student, Course, Session, recreate_database
+recreate_database()
 
 s = Session()
 
@@ -36,7 +34,7 @@ def generate_courses():
     s.commit()
 
     course = Course(name='Geography', description='The study of places and the relationships between people and '
-                                                   'their environments.')
+                                                  'their environments.')
     s.add(course)
     s.commit()
 
@@ -69,10 +67,10 @@ def generate_courses():
 
 
 def generate_students():
-    names = ['Monica', 'Andrew', 'Nicolas', 'Charlie', 'Dara', 'Rid', 'Robert', 'Natan', 'Enis', 'Melanie',
-             'Anissa', 'Rafael', 'Alex', 'Patrick', 'Victor', 'Sean', 'Nelie', 'Kaycee', 'Justin', 'Daniel']
-    surnames = ['Amos', 'Nelson', 'Spring', 'Alias', 'Potter', 'Lew', 'Dun', 'Beauchamp', 'Lonis', 'Kodish',
-                'Polo', 'Heaton', 'Nedelec', 'Rice', 'Bloom', 'Clark', 'Byrne', 'Rien', 'Alien', 'Joseph']
+    names = ['Jonathan', 'Martin', 'Timothy', 'Sasha', 'Elias', 'Georgie', 'Basira', 'Alice', 'Melanie', 'Jurgen',
+             'Julia', 'Gertrude', 'Gerard', 'Agnes', 'Annabelle', 'Jane', 'Jonah', 'Michael', 'Peter', 'Trevor']
+    surnames = ['Sims', 'Blackwood', 'Stoker', 'James', 'Bouchard', 'Barker', 'Hussain', 'Tonner', 'King', 'Leitner',
+                'Montauk', 'Robinson', 'Keay', 'Montague', 'Cane', 'Prentiss', 'Magnus', 'Crew', 'Lukas', 'Herbert']
     students = random.sample(set(itertools.product(names, surnames)), 200)
 
     groups = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: []}
@@ -106,7 +104,7 @@ def generate_student_course():
             for j in range(0, course_num):
                 r = random.randint(1, 10)
                 for course in s.query(Course).filter_by(id=r):
-                    student.course.append(course)
+                    student.courses.append(course)
                     s.commit()
 
 

@@ -7,12 +7,14 @@ from app import db
 student_course = db.Table('student_course',
                           db.Column('student_id', db.Integer, db.ForeignKey('student.id', ondelete="CASCADE")),
                           db.Column('course_id', db.Integer, db.ForeignKey('course.id',  ondelete="CASCADE")),
-                          db.PrimaryKeyConstraint('student_id', 'course_id')
+                          #db.PrimaryKeyConstraint('student_id', 'course_id'),
+                          extend_existing=True
                           )
 
 
 class Group(db.Model):
     __tablename__ = 'group'
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True)
     name = Column(String(10))
     student = relationship("Student", back_populates="group")
@@ -23,12 +25,14 @@ class Group(db.Model):
 
 class Student(db.Model):
     __tablename__ = 'student'
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True)
     first_name = Column(String(100))
     last_name = Column(String(100))
     group_id = Column(Integer, ForeignKey('group.id'))
 
     group = relationship("Group", back_populates="student")
+    courses = relationship('Course', secondary=student_course, backref='student')
     course = relationship('Course',
                           secondary=student_course,
                           back_populates='student',
@@ -40,13 +44,14 @@ class Student(db.Model):
 
 class Course(db.Model):
     __tablename__ = 'course'
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True)
     name = Column(String(100))
     description = Column(String(500))
     student = relationship("Student",
                            secondary=student_course,
                            back_populates="course",
-                           passive_deletes=True,
+                           #passive_deletes=True,
                            )
 
     def __repr__(self):
@@ -59,7 +64,7 @@ if not database_exists(engine.url):
 db.Model.metadata.create_all(engine)
 
 
-def recreate_database(db):
+def recreate_database():
     db.Model.metadata.drop_all(engine)
     db.Model.metadata.create_all(engine)
 
