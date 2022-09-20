@@ -1,7 +1,7 @@
 import string
 import random
 import itertools
-from Model import Group, Student, Course, Session, recreate_database
+from models.Model import Group, Student, Course, Session, recreate_database
 recreate_database()
 
 s = Session()
@@ -104,7 +104,7 @@ def generate_student_course():
             for j in range(0, course_num):
                 r = random.randint(1, 10)
                 for course in s.query(Course).filter_by(id=r):
-                    student.courses.append(course)
+                    student.course.append(course)
                     s.commit()
 
 

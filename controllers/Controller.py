@@ -35,7 +35,8 @@ class Controller():
         elif not stud_first_name or not stud_last_name:
             return {'error': 'wrong request'}
 
-        stud = Student(first_name=stud_first_name, last_name=stud_last_name)
+        last_stud = s.query(Student).order_by(Student.id.desc()).first()
+        stud = Student(id=last_stud.id + 1, first_name=stud_first_name, last_name=stud_last_name)
         s.add(stud)
         s.commit()
 
@@ -139,6 +140,7 @@ class Controller():
             stud_name['first name'] = student.first_name
             stud_name['last name'] = student.last_name
             result['name'] = stud_name
+            result['id'] = student.id
             student_courses = []
             query = s.query(Student).join(Course.student)
             if query:
