@@ -4,19 +4,11 @@ from controllers.Controller import Controller
 import ast
 
 
-class GroupsLeqStudentsAPI(Resource):
-    def get(self):
-        students_num = request.args.get('students')
-        controller = Controller()
-        api_data = controller.get_data(controller.groups_leq_students(int(students_num)))
-        return jsonify(api_data)
-
-
 class StudentsCourseAPI(Resource):
     def get(self):
         course_name = request.args.get('course')
         controller = Controller()
-        api_data = controller.get_data(controller.students_related_to_course(course_name))
+        api_data = controller.students_related_to_course(course_name)
         return jsonify(api_data)
 
 
@@ -24,55 +16,36 @@ class StudentsAPI(Resource):
     def get(self):
         controller = Controller()
         if not request.args:
-            api_data = controller.get_data(controller.show_students())
+            api_data = controller.show_students()
         elif not 'first_name' in request.args or not 'last_name' in request.args:
             api_data = {"error": "wrong request"}
         else:
             stud_first_name = request.args.get('first_name')
             stud_last_name = request.args.get('last_name')
-            api_data = controller.get_data(controller.show_one_student(stud_first_name, stud_last_name))
+            api_data = controller.show_one_student(stud_first_name, stud_last_name)
         return jsonify(api_data)
 
     def post(self):
         data = ast.literal_eval(request.data.decode('utf-8'))
         stud_first_name = data.get("first_name")
         stud_last_name = data.get("last_name")
-
         controller = Controller()
-        adding = controller.student_add(stud_first_name, stud_last_name)
-
-        if adding:
-            return jsonify(adding)
-
-        result = dict()
-        name = dict()
-        name['first name'] = stud_first_name
-        name['last name'] = stud_last_name
-        result['name'] = name
-        result['action'] = 'added'
-        api_data = controller.get_data(result)
-        return jsonify(api_data)
+        result = controller.student_add(stud_first_name, stud_last_name)
+        return jsonify(result)
 
     def delete(self):
         data = ast.literal_eval(request.data.decode('utf-8'))
         stud_id = data.get('id')
 
         controller = Controller()
-        delete = controller.student_delete(stud_id)
-        if delete:
-            return jsonify(delete)
-
-        result = dict()
-        result['id'] = stud_id
-        result['action'] = 'deleted'
-        api_data = controller.get_data(result)
-        return jsonify(api_data)
+        result = controller.student_delete(stud_id)
+        return jsonify(result)
 
 
 class CoursesAPI(Resource):
     def get(self):
         controller = Controller()
-        api_data = controller.get_data(controller.show_courses())
+        api_data = controller.show_courses()
         return jsonify(api_data)
 
 
@@ -83,7 +56,7 @@ class StudentCourseAPI(Resource):
             return jsonify({'error': 'student do not exist'})
         else:
             stud_id = request.args.get('student_id')
-            api_data = controller.get_data(controller.show_courses_of_one_student(int(stud_id)))
+            api_data = controller.show_courses_of_one_student(int(stud_id))
         return jsonify(api_data)
 
     def post(self):
@@ -96,7 +69,7 @@ class StudentCourseAPI(Resource):
 
         if adding:
             return jsonify(adding)
-        api_data = controller.get_data(controller.show_courses_of_one_student(int(stud_id)))
+        api_data = controller.show_courses_of_one_student(int(stud_id))
         return jsonify(api_data)
 
     def delete(self):
@@ -121,5 +94,9 @@ class StudentCourseAPI(Resource):
 class GroupAPI(Resource):
     def get(self):
         controller = Controller()
-        api_data = controller.get_data(controller.show_groups())
+        students_num = request.args.get('students')
+        if students_num:
+            api_data = controller.groups_leq_students(int(students_num))
+        else:
+            api_data = controller.show_groups()
         return jsonify(api_data)

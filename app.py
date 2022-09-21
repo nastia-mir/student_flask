@@ -12,13 +12,11 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-from views.view import GroupsLeqStudentsAPI, StudentsCourseAPI, StudentsAPI, CoursesAPI, GroupAPI, StudentCourseAPI
+from views.view import StudentsCourseAPI, StudentsAPI, CoursesAPI, GroupAPI, StudentCourseAPI
 
-api.add_resource(GroupsLeqStudentsAPI, "/groups_leq_studs/", endpoint="/groups_leq_studs/")
 api.add_resource(StudentsCourseAPI, "/studs_course/", endpoint="/studs_course/")
 api.add_resource(StudentsAPI, "/students/", endpoint="/students/")
 api.add_resource(StudentCourseAPI, "/students/courses/", endpoint="/students/courses/")
-
 api.add_resource(CoursesAPI, "/courses/", endpoint="/courses/")
 api.add_resource(GroupAPI, "/groups/", endpoint="/groups/")
 app.register_blueprint(data_bp, url_prefix="/api/v1")

@@ -8,7 +8,7 @@ Base = declarative_base()
 student_course = Table('student_course',
                        Base.metadata,
                        Column('student_id', Integer, ForeignKey('student.id')),
-                       Column('course_id', Integer, ForeignKey('course.id',)),
+                       Column('course_id', Integer, ForeignKey('course.id')),
                        )
 
 

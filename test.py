@@ -60,29 +60,27 @@ def test_studs_course(client):
     assert find_str(str(response.data), '"Peter Robinson"')
 
 
-def test_student_add(client):
-    data = {
+def test_student_add_delete(client):
+    data_add = {
         "first_name": "Melanie",
         "last_name": "Sims"
     }
     url = '/api/v1/students/'
-    response1 = client.post(url, data=json.dumps(data))
-    assert response1.json['data']['name']['first name'] == "Melanie"
-    assert response1.json['data']['name']['last name'] == "Sims"
-    response2 = client.post(url, data=json.dumps(data))
-    assert response2.json['error'] == "student already exists."
+    response1_add = client.post(url, data=json.dumps(data_add))
+    added_stud_id = response1_add.json['id']
+    assert response1_add.json['name']['first name'] == "Melanie"
+    assert response1_add.json['name']['last name'] == "Sims"
+    response2_add = client.post(url, data=json.dumps(data_add))
+    assert response2_add.json['error'] == "student already exists."
 
-
-def test_student_delete(client):
-    data = {
-        "id": 201
+    data_delete = {
+        "id": added_stud_id
     }
-    url = '/api/v1/students/'
-    response1 = client.delete(url, data=json.dumps(data))
-    assert response1.json['data']['action'] == 'deleted'
-    assert response1.json['data']['id'] == 201
-    response2 = client.delete(url, data=json.dumps(data))
-    assert response2.json['error'] == "no student with given id."
+    response1_delete = client.delete(url, data=json.dumps(data_delete))
+    assert response1_delete.json['action'] == 'deleted'
+    assert response1_delete.json['id'] == added_stud_id
+    response2_delete = client.delete(url, data=json.dumps(data_delete))
+    assert response2_delete.json['error'] == "no student with given id."
 
 
 def test_add_student_to_course(client):
