@@ -65,30 +65,24 @@ class StudentCourseAPI(Resource):
         course_id = data.get("course_id")
 
         controller = Controller()
-        adding = controller.add_student_to_course(int(stud_id), int(course_id))
-
-        if adding:
-            return jsonify(adding)
-        api_data = controller.show_courses_of_one_student(int(stud_id))
-        return jsonify(api_data)
+        adding = controller.add_student_to_course(stud_id, course_id)
+        if adding['added']:
+            api_data = controller.show_courses_of_one_student(int(stud_id))
+            return jsonify(api_data)
+        else:
+            return jsonify({'error': 'wrong id'})
 
     def delete(self):
         data = ast.literal_eval(request.data.decode('utf-8'))
         stud_id = data.get("student_id")
         course_id = data.get("course_id")
-
         controller = Controller()
-        delete = controller.remove_student_from_course(int(stud_id), int(course_id))
-        if delete.get("error"):
+        delete = controller.remove_student_from_course(stud_id, course_id)
+
+        if delete['deleted']:
             return jsonify(delete)
-        elif not delete.get("deleted"):
-            return jsonify({"error": "student do not attend given course."})
-        result = dict()
-        result['course_id'] = course_id
-        result['student_id'] = stud_id
-        result['action'] = 'deleted'
-        api_data = controller.get_data(result)
-        return jsonify(api_data)
+        else:
+            return jsonify({'error': 'wrong id'})
 
 
 class GroupAPI(Resource):

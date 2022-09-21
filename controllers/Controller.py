@@ -1,14 +1,11 @@
-from models.Model import Group, Student, Course, Session, engine
+from models.Model import Group, Student, Course, Session, engine, student_course
 from sqlalchemy.sql.expression import func
-from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 s = Session()
 
 
 class Controller():
-    def get_data(self, lst):
-        return {'data': lst}
-
     def groups_leq_students(self, num):
         correct_group_names = []
         result = dict()
@@ -22,7 +19,7 @@ class Controller():
                     if stud.group.name not in correct_group_names:
                         correct_group_names.append(stud.group.name)'''
         result['groups'] = correct_group_names
-        return self.get_data(result)
+        return result
 
     def students_related_to_course(self, course_name):
         query = s.query(Student).join(Course.student)
@@ -33,7 +30,7 @@ class Controller():
                 if course.name == course_name:
                     students_on_course.append(' '.join([row.first_name, row.last_name]))
         result[course_name] = students_on_course
-        return self.get_data(result)
+        return result
 
     def student_add(self, stud_first_name, stud_last_name):
         student = s.query(Student).filter_by(first_name=stud_first_name, last_name=stud_last_name).first()
@@ -70,28 +67,38 @@ class Controller():
         result['action'] = 'deleted'
         return result
 
-
     def add_student_to_course(self, stud_id, course_id):
-        for student in s.query(Student).filter_by(id=stud_id):
-            if not student:
-                return {"error": "wrong student id."}
-            for course in s.query(Course).filter_by(id=course_id):
-                if not course:
-                    return {"error": "wrong course id."}
-                student.course.append(course)
-                s.commit()
+        result = dict()
+        try:
+            statement = student_course.insert().values(student_id=stud_id, course_id=course_id)
+            s.execute(statement)
+            result['added'] = True
+            result['student id'] = stud_id
+            result['course id'] = course_id
+
+        except IntegrityError:
+            s.commit()
+            result['added'] = False
+
+        s.commit()
+        return result
 
     def remove_student_from_course(self, stud_id, course_id):
-        for student in s.query(Student).filter_by(id=stud_id):
-            deleted = False
-            if not student:
-                return {"error": "wrong student id."}
-            for course in student.course:
-                if course.id == course_id:
-                    deleted = True
-                    student.course.pop()
-                    s.commit()
-        return {"deleted": deleted}
+        result = dict()
+        try:
+            statement = student_course.delete().where(student_course.c.student_id == stud_id,
+                                                      student_course.c.course_id == course_id)
+            s.execute(statement)
+            result['deleted'] = True
+            result['student id'] = stud_id
+            result['course id'] = course_id
+
+        except IntegrityError:
+            s.commit()
+            result['deleted'] = False
+
+        s.commit()
+        return result
 
     def show_students(self):
         result = dict()
@@ -105,15 +112,10 @@ class Controller():
                 student_info['group name'] = 'None'
             else:
                 student_info['group name'] = student.group.name
-            student_courses = []
-            query = s.query(Student).join(Course.student)
-            for row in query:
-                for course in row.course:
-                    if row.id == student.id:
-                        student_courses.append(course.name)
+            student_courses = [course.name for course in student.course]
             student_info['courses'] = student_courses
             result[student.id] = student_info
-        return self.get_data(result)
+        return result
 
     def show_one_student(self, first_name, last_name):
         student = s.query(Student).filter_by(first_name=first_name, last_name=last_name).first()
@@ -130,15 +132,10 @@ class Controller():
                 student_info['group name'] = 'None'
             else:
                 student_info['group name'] = student.group.name
-            student_courses = []
-            query = s.query(Student).join(Course.student)
-            for row in query:
-                for course in row.course:
-                    if row.id == student.id:
-                        student_courses.append(course.name)
+            student_courses = [course.name for course in student.course]
             student_info['courses'] = student_courses
             result[student.id] = student_info
-        return self.get_data(result)
+        return result
 
     def show_courses(self):
         result = dict()
@@ -147,7 +144,7 @@ class Controller():
             course_info['course name'] = course.name
             course_info['description'] = course.description
             result[course.id] = course_info
-        return self.get_data(result)
+        return result
 
     def show_courses_of_one_student(self, stud_id):
         student = s.query(Student).filter_by(id=stud_id).first()
@@ -160,17 +157,9 @@ class Controller():
             stud_name['last name'] = student.last_name
             result['name'] = stud_name
             result['id'] = student.id
-            student_courses = []
-            query = s.query(Student).join(Course.student)
-            if query:
-                for row in query:
-                    for course in row.course:
-                        if row.id == stud_id:
-                            student_courses.append(course.name)
-                result['courses'] = student_courses
-            else:
-                result['courses'] = 'None'
-        return self.get_data(result)
+            student_courses = [course.name for course in student.course]
+            result['courses'] = student_courses
+        return result
 
     def show_groups(self):
         result = dict()
@@ -182,7 +171,7 @@ class Controller():
                 studs.append(' '.join([stud.first_name, stud.last_name]))
             group_info['students'] = studs
             result[group.id] = group_info
-        return self.get_data(result)
+        return result
 
 
 s.close()
