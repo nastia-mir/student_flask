@@ -9,15 +9,11 @@ class Controller():
     def groups_leq_students(self, num):
         correct_group_names = []
         result = dict()
-        groups = s.query(Group).group_by(Group.id).all()
+        groups = s.query(Group, func.count(Group.student)).join(Student).group_by(Group.id).all()
         for group in groups:
-            print(len(group.student))
-        '''for i in range(1, 11):
-            students_in_group = s.query(Student).join(Group).filter(Group.id == i)
-            if students_in_group.count() <= num:
-                for stud in students_in_group:
-                    if stud.group.name not in correct_group_names:
-                        correct_group_names.append(stud.group.name)'''
+            print(group)
+            if group[1] <= num:
+                correct_group_names.append(group.Group.name)
         result['groups'] = correct_group_names
         return result
 

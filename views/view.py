@@ -4,14 +4,6 @@ from controllers.Controller import Controller
 import ast
 
 
-class StudentsCourseAPI(Resource):
-    def get(self):
-        course_name = request.args.get('course')
-        controller = Controller()
-        api_data = controller.students_related_to_course(course_name)
-        return jsonify(api_data)
-
-
 class StudentsAPI(Resource):
     def get(self):
         controller = Controller()
@@ -52,11 +44,15 @@ class CoursesAPI(Resource):
 class StudentCourseAPI(Resource):
     def get(self):
         controller = Controller()
-        if not request.args or not 'student_id' in request.args:
-            return jsonify({'error': 'student do not exist'})
-        else:
+        if 'course' in request.args:
+            course_name = request.args.get('course')
+            api_data = controller.students_related_to_course(course_name)
+        elif 'student_id' in request.args:
             stud_id = request.args.get('student_id')
             api_data = controller.show_courses_of_one_student(int(stud_id))
+        elif not request.args:
+            return jsonify({'error': 'specify arguments'})
+
         return jsonify(api_data)
 
     def post(self):

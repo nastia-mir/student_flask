@@ -12,9 +12,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-from views.view import StudentsCourseAPI, StudentsAPI, CoursesAPI, GroupAPI, StudentCourseAPI
+from views.view import StudentsAPI, CoursesAPI, GroupAPI, StudentCourseAPI
 
-api.add_resource(StudentsCourseAPI, "/studs_course/", endpoint="/studs_course/")
 api.add_resource(StudentsAPI, "/students/", endpoint="/students/")
 api.add_resource(StudentCourseAPI, "/students/courses/", endpoint="/students/courses/")
 api.add_resource(CoursesAPI, "/courses/", endpoint="/courses/")
