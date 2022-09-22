@@ -84,9 +84,9 @@ class StudentCourseAPI(Resource):
 class GroupAPI(Resource):
     def get(self):
         controller = Controller()
-        students_num = request.args.get('students')
-        if students_num:
-            api_data = controller.groups_leq_students(int(students_num))
+        leq_students = request.args.get('students')
+        if leq_students:
+            api_data = controller.groups_leq_students(int(leq_students))
         else:
             api_data = controller.show_groups()
         return jsonify(api_data)

@@ -10,10 +10,10 @@ class Controller():
     def groups_leq_students(self, num):
         correct_group_names = []
         result = dict()
-        groups = s.query(Group.name, func.count(Group.student)).join(Student).group_by(Group.id).all()
+        groups = s.query(Group.name, func.count(Group.student)).join(Student).group_by(Group.id)\
+            .having(func.count(Group.student) <= num).all()
         for group in groups:
-            if group[1] <= num:
-                correct_group_names.append(group[0])
+            correct_group_names.append(group[0])
         result['groups'] = correct_group_names
         return result
 

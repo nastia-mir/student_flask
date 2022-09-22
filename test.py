@@ -17,30 +17,31 @@ def client(myapp):
     return app.test_client()
 
 
-params_names = [{'first_name': 'Jonathan', 'last_name': 'Sims'},
-                {'first_name': 'Martin', 'last_name': 'Sims'},
-                {'first_name': 'Sasha', 'last_name': 'James'}]
+@pytest.mark.parametrize("correct_requests", [{'first_name': 'Jonathan', 'last_name': 'Sims'},
+                                              {'first_name': 'Martin', 'last_name': 'Sims'},
+                                              {'first_name': 'Sasha', 'last_name': 'James'}])
+def test_students_correct_request(client, correct_requests):
+    response = client.get('/api/v1/students/?first_name={}&last_name={}'.format(correct_requests['first_name'],
+                                                                                correct_requests['last_name']))
+    assert response.json['name']['first name'] == correct_requests['first_name']
+    assert response.json['name']['last name'] == correct_requests['last_name']
 
-params_wrong_requests = [{'name': 'somename', 'message': "wrong student name"},
-                         {'name': 'Jonathan', 'message': "wrong student name"}]
+
+@pytest.mark.parametrize("wrong_requests", [{'name': 'somename', 'message': "wrong student name"},
+                                            {'name': 'Jonathan', 'message': "wrong student name"}])
+def test_students_wrong_request(client, wrong_requests):
+    response = client.get('/api/v1/students/?first_name={}&last_name={}'.format(wrong_requests['name'],
+                                                                                wrong_requests['name']))
+    assert response.json['message'] == wrong_requests['message']
 
 
-def test_students(client):
-    for name in params_names:
-        response = client.get('/api/v1/students/?first_name={}&last_name={}'.format(name['first_name'],
-                                                                                    name['last_name']))  # correct name
-        assert response.json['name']['first name'] == name['first_name']
-        assert response.json['name']['last name'] == name['last_name']
-
-    for request in params_wrong_requests:
-        response = client.get('/api/v1/students/?first_name={}&last_name={}'.format(request['name'],
-                                                                                    request['name']))  # incorrect name
-        assert response.json['message'] == request['message']
-
-    response = client.get('/api/v1/students/?first_name=Jonathan')  # 1 argument given
+def test_students_one_arg(client):
+    response = client.get('/api/v1/students/?first_name=Jonathan')
     assert response.json['message'] == 'wrong request'
 
-    response = client.get('/api/v1/students/')  # more than 1 student
+
+def test_all_students(client):
+    response = client.get('/api/v1/students/')
     student_present = False
     for i in range(1, 201):
         if response.json['{}'.format(i)]:
@@ -48,27 +49,21 @@ def test_students(client):
     assert student_present
 
 
-params_courses = [{'id': '1', 'course_name': 'Mathematics'},
-                  {'id': '2', 'course_name': 'Biology'},
-                  {'id': '6', 'course_name': 'Literature'},
-                  {'id': '8', 'course_name': 'History'}]
-
-
-def test_courses(client):
+@pytest.mark.parametrize("courses", [{'id': '1', 'course_name': 'Mathematics'},
+                                     {'id': '2', 'course_name': 'Biology'},
+                                     {'id': '6', 'course_name': 'Literature'},
+                                     {'id': '8', 'course_name': 'History'}])
+def test_courses(client, courses):
     response = client.get('/api/v1/courses/')
-    for course in params_courses:
-        assert response.json[course['id']]['course name'] == course['course_name']
+    assert response.json[courses['id']]['course name'] == courses['course_name']
 
 
-params_group = [{'id': '1', 'group_name': "PP-60"},
-                {'id': '3', 'group_name': "PC-14"},
-                {'id': '6', 'group_name': "NF-74"}]
-
-
-def test_groups(client):
+@pytest.mark.parametrize("groups", [{'id': '1', 'group_name': "PP-60"},
+                                    {'id': '3', 'group_name': "PC-14"},
+                                    {'id': '6', 'group_name': "NF-74"}])
+def test_groups(client, groups):
     response = client.get('/api/v1/groups/')
-    for group in params_group:
-        assert response.json[group['id']]['group name'] == group['group_name']
+    assert response.json[groups['id']]['group name'] == groups['group_name']
 
 
 def test_groups_leq_studs(client):
