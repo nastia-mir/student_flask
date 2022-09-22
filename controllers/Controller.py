@@ -1,6 +1,7 @@
-from models.Model import Group, Student, Course, Session, engine, student_course
 from sqlalchemy.sql.expression import func
 from sqlalchemy.exc import IntegrityError
+from flask import abort
+from models.Model import Group, Student, Course, Session, student_course
 
 s = Session()
 
@@ -32,9 +33,9 @@ class Controller():
         student = s.query(Student).filter_by(first_name=stud_first_name, last_name=stud_last_name).first()
 
         if student:
-            return {'error': 'student already exists.'}
+            abort(400, description="student already exists")
         elif not stud_first_name or not stud_last_name:
-            return {'error': 'wrong request'}
+            abort(400, description="wrong request")
 
         stud = Student(first_name=stud_first_name, last_name=stud_last_name)
         s.add(stud)
@@ -51,10 +52,10 @@ class Controller():
 
     def student_delete(self, stud_id):
         if not stud_id:
-            return {'error': 'wrong request'}
+            abort(400, description="wrong request")
         student = s.query(Student).filter_by(id=stud_id).first()
         if not student:
-            return {'error': 'no student with given id.'}
+            abort(400, description="no student with given id")
         s.delete(student)
         s.commit()
 
@@ -116,21 +117,20 @@ class Controller():
     def show_one_student(self, first_name, last_name):
         student = s.query(Student).filter_by(first_name=first_name, last_name=last_name).first()
         if not student:
-            return {'error': 'wrong student name'}
+            abort(400, description="wrong student name")
         else:
             result = dict()
-            student_info = dict()
             stud_name = dict()
             stud_name['first name'] = first_name
             stud_name['last name'] = last_name
-            student_info['name'] = stud_name
+            result['name'] = stud_name
+            result['id'] = student.id
             if not student.group:
-                student_info['group name'] = 'None'
+                result['group name'] = 'None'
             else:
-                student_info['group name'] = student.group.name
+                result['group name'] = student.group.name
             student_courses = [course.name for course in student.course]
-            student_info['courses'] = student_courses
-            result[student.id] = student_info
+            result['courses'] = student_courses
         return result
 
     def show_courses(self):
@@ -145,7 +145,7 @@ class Controller():
     def show_courses_of_one_student(self, stud_id):
         student = s.query(Student).filter_by(id=stud_id).first()
         if not student:
-            return {'error': 'wrong student id'}
+            abort(400, description="wrong student id")
         else:
             result = dict()
             stud_name = dict()

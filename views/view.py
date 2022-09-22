@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, abort
 from flask_restful import Resource
 from controllers.Controller import Controller
 import ast
@@ -10,7 +10,7 @@ class StudentsAPI(Resource):
         if not request.args:
             api_data = controller.show_students()
         elif not 'first_name' in request.args or not 'last_name' in request.args:
-            api_data = {"error": "wrong request"}
+            abort(400, description="wrong request")
         else:
             stud_first_name = request.args.get('first_name')
             stud_last_name = request.args.get('last_name')
@@ -51,7 +51,7 @@ class StudentCourseAPI(Resource):
             stud_id = request.args.get('student_id')
             api_data = controller.show_courses_of_one_student(int(stud_id))
         elif not request.args:
-            return jsonify({'error': 'specify arguments'})
+            abort(400, description="specify arguments")
 
         return jsonify(api_data)
 
@@ -66,7 +66,7 @@ class StudentCourseAPI(Resource):
             api_data = controller.show_courses_of_one_student(int(stud_id))
             return jsonify(api_data)
         else:
-            return jsonify({'error': 'wrong id'})
+            abort(400, description="wrong id")
 
     def delete(self):
         data = ast.literal_eval(request.data.decode('utf-8'))
@@ -78,7 +78,7 @@ class StudentCourseAPI(Resource):
         if delete['deleted']:
             return jsonify(delete)
         else:
-            return jsonify({'error': 'wrong id'})
+            abort(400, description="wrong id")
 
 
 class GroupAPI(Resource):

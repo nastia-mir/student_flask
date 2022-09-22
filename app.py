@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from routes.routes import data_bp, api
+from views.view import StudentsAPI, CoursesAPI, GroupAPI, StudentCourseAPI
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:1111@localhost:5432/students'
@@ -10,9 +11,6 @@ app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
-
-from views.view import StudentsAPI, CoursesAPI, GroupAPI, StudentCourseAPI
 
 api.add_resource(StudentsAPI, "/students/", endpoint="/students/")
 api.add_resource(StudentCourseAPI, "/students/courses/", endpoint="/students/courses/")
